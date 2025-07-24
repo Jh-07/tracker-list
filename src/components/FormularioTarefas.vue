@@ -2,14 +2,14 @@
     <div class="box">
         <div class="columns">
             <div class="column is-8">
-                <input type="text" placeholder="Nome da tarefa" class="input">
+                <input type="text" v-model="descricaoTarefa" placeholder="Nome da tarefa" class="input">
             </div>
             <div class="columns">
                 <div class="is-flex is-align-items-center is-justify-content-space-between">
                     <section class="column">
                         <strong>{{ tempoDecorrido }}</strong>
                     </section>
-                    <button class="button  column " :disabled="cronometroAtivo" @click="iniciar">
+                    <button class="button  column " :disabled="botaoPlayDesabilitado" @click="iniciar">
                         <span class="icon">
                             <i class="fas fa-play"></i>
                         </span>
@@ -45,7 +45,8 @@ export default defineComponent({
         return {
             tempoEmSegundos: 0,
             cronometro: 0,
-            cronometroAtivo: false
+            cronometroAtivo: false,
+            descricaoTarefa: ''
         }
     },
     computed: {
@@ -59,6 +60,9 @@ export default defineComponent({
         },
         isCronometroIniciado(): boolean{
              return this.tempoDecorrido!== "00:00:00"
+        },
+        botaoPlayDesabilitado(): boolean{
+            return this.cronometroAtivo || this.descricaoTarefa.trim() === ''
         }
     },
     methods: {
@@ -74,13 +78,16 @@ export default defineComponent({
         finalizar() {
             this.cronometroAtivo = false
             clearInterval(this.cronometro)
+            this.$emit("adicionarTarefa",this.tempoDecorrido, this.descricaoTarefa)
             this.tempoEmSegundos = 0
+
         },
         pausar() {
             this.cronometroAtivo = false
             clearInterval(this.cronometro)
         }
-    }
+    },
+    emits: ['adicionarTarefa']
 })
 
 </script>
