@@ -3,6 +3,22 @@
         <h1>
             <img  src="../assets/logo.png">
         </h1>
+
+        <nav class="panel mt-5">
+            <ul>
+                <li>
+                    <router-link to="/">
+                        <i class="fas fa-tasks"></i>
+                        Tarefas
+                    </router-link>
+                    <router-link to="/projetos">
+                        <i class="fas fa-project-diagram"></i>
+                        Projetos
+                    </router-link>
+                </li>
+            </ul>
+
+        </nav>
     </header>
 </template>
 
