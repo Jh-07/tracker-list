@@ -4,6 +4,10 @@
             <div class="column is-8">
                 <input type="text" v-model="descricaoTarefa" placeholder="Nome da tarefa" class="input">
             </div>
+            <select v-model="projeto" class="select ">
+                <option value="" disabled selected>Selecione um projeto</option>
+                <option v-for="projeto in projetos" :key="projeto.id" :value="projeto">{{ projeto.nome }}</option> <!-- OBS: em :value, eu tinha colocado projeto.id, isso não funcionou pq no método pai eu coloquei pra receber um IProjeto e não uma string-->
+            </select>
             <div class="columns">
                 <div class="is-flex is-align-items-center is-justify-content-space-between">
                     <section class="column">
@@ -36,6 +40,9 @@
 </template>
 
 <script lang="ts">
+import IProjeto from '@/interfaces/IProjeto';
+import ITarefa from '@/interfaces/ITarefa';
+import { useProjetosStore } from '@/stores/ProjetosStore';
 import { defineComponent } from 'vue';
 
 
@@ -46,12 +53,16 @@ export default defineComponent({
             tempoEmSegundos: 0,
             cronometro: 0,
             cronometroAtivo: false,
-            descricaoTarefa: ''
+            descricaoTarefa: '',
+            projeto: null as IProjeto | null ,
         }
     },
     computed: {
+        projetos(): IProjeto[]{
+            const projetoStore = useProjetosStore();
+            return projetoStore.listaProjetos;
+        },
         tempoDecorrido(): string {
-            console.log(new Date(this.tempoEmSegundos * 1000).toTimeString())
 
             return new Date(this.tempoEmSegundos * 1000).toISOString().substring(11, 19)
             //new Date cria um horário no formato "aaaa-mm-ddZhh:mm:SS:ssss"
@@ -62,7 +73,9 @@ export default defineComponent({
              return this.tempoDecorrido!== "00:00:00"
         },
         botaoPlayDesabilitado(): boolean{
-            return this.cronometroAtivo || this.descricaoTarefa.trim() === ''
+            return (this.cronometroAtivo || 
+            this.descricaoTarefa.trim() === '' ||
+            this.projeto === null)
         }
     },
     methods: {
@@ -78,7 +91,12 @@ export default defineComponent({
         finalizar() {
             this.cronometroAtivo = false
             clearInterval(this.cronometro)
-            this.$emit("adicionarTarefa",this.tempoDecorrido, this.descricaoTarefa)
+            const novaTarefa: ITarefa = {
+                descricao: this.descricaoTarefa,
+                tempoGasto:this.tempoDecorrido,
+                projeto: this.projeto as IProjeto // O projeto é do tipo IProjeto, mas pode ser null, então é necessário fazer o cast
+            }
+            this.$emit("adicionarTarefa", novaTarefa)
             this.tempoEmSegundos = 0
 
         },

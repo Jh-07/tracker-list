@@ -5,7 +5,7 @@
       </h1>
       <ul>
         <li v-for="tarefa in tarefas" :key="tarefa.descricao">
-          <TarefaComponent :descricao="tarefa.descricao" :tempo-gasto="tarefa.tempoGasto" />
+          <TarefaComponent :tarefa="tarefa"/>
         </li>
       </ul>
     </div>
@@ -17,6 +17,7 @@ import { defineComponent } from 'vue';
 import FormularioTarefas from '../components/FormularioTarefas.vue';
 import TarefaComponent from '../components/TarefaComponent.vue';
 import ITarefa from '../interfaces/ITarefa';
+import { useTarefasStore } from '@/stores/TarefasStore';
 
 export default defineComponent({
   name: 'TarefasView',
@@ -26,12 +27,15 @@ export default defineComponent({
       tarefas : [] as ITarefa[]
     }
   },
+  created(){
+    const tarefaStore = useTarefasStore();
+    this.tarefas = tarefaStore.tarefas
+  },
   methods:{
-    adicionarTarefa(tempoDecorrido: string, descricaoTarefa: string){
-      this.tarefas.push({
-        descricao: descricaoTarefa,
-        tempoGasto: tempoDecorrido
-      })
+    adicionarTarefa(tarefa: ITarefa){
+      const tarefaStore = useTarefasStore();
+      tarefaStore.adicionarTarefa(tarefa);
+      this.tarefas = tarefaStore.tarefas; // Atualiza a lista de tarefas
     }
   }
 });

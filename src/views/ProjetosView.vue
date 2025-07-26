@@ -1,7 +1,7 @@
 <template>
     <section class="projetos">
         <h1 class="title">Projetos</h1>
-        <form @submit.prevent="adicionarProjeto">
+        <form @submit.prevent="adicionarProjeto"> <!-- @submit.prevent impede que a página seja carregada depois de enviar o formulário, impedindo que o estado global da página seja resetado -->
             <div class="field">
                 <label class="label" for="nomeprojeto">
                     Nome do Projeto
@@ -35,25 +35,32 @@
 <script lang="ts">
 import IProjeto from '@/interfaces/IProjeto';
 import { defineComponent } from 'vue';
+import { useProjetosStore } from '@/stores/ProjetosStore'
 
-    
     export default defineComponent({
         name: 'ProjetosView',
         data() {
             return{
                 nomeProjeto: '',
-                projetos: [] as IProjeto[],
+                projetos: [] as IProjeto[]
             }
             
         },
+        created(){ // O pinia exige que a store seja criada em um hook, ela não pode ser criada de outra forma, apenas em setup() do composition API
+            const projetoStore = useProjetosStore();
+            this.projetos = projetoStore.listaProjetos;
+        },
         methods: {
-            adicionarProjeto(){
-                this.projetos.push({
-                    id: new Date().toISOString(),
+           adicionarProjeto(){
+                const data = new Date().toISOString();
+                const novoProjeto: IProjeto = {
+                    id: data,
                     nome: this.nomeProjeto
-                })
+                }
+                const projetoStore = useProjetosStore(); //Também é necessário criar a store aqui, caso queira usar Options API, mas não faço ideia do porquê
+                projetoStore.adicionarProjeto(novoProjeto); 
                 this.nomeProjeto = ''
-            }
+           }
         }
     })
 </script>
