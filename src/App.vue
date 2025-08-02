@@ -5,7 +5,7 @@
     </div>
     <div class="column is-three-quarters">
       <router-view></router-view>
-    </div>"
+    </div>
 
   </main>
 

@@ -1,3 +1,4 @@
+import httpClient from "@/http";
 import IProjeto from "@/interfaces/IProjeto";
 import { defineStore } from "pinia";
 
@@ -15,12 +16,33 @@ export const useProjetosStore = defineStore('projetos', { //'projetos é o Id de
         }
     },
     actions: { // Funciona como os métodos de um componente
-        adicionarProjeto(novoProjeto: IProjeto)  {
+        async getListaProjetos(){
+           const response = await httpClient.get<IProjeto[]>("projetos")
+           this.projetos = response.data
+        },
+        async adicionarProjeto(novoProjeto: IProjeto)  {
+            await httpClient.post("projetos",
+                {
+                    id: novoProjeto.id,
+                    nome: novoProjeto.nome
+                },
+            )
             this.projetos.push(novoProjeto)
         },
-        atualizarProjeto(projetoAtualizado: IProjeto){
-            const index = this.projetos.findIndex(proj => proj.id == projetoAtualizado.id)
-            this.projetos[index] = projetoAtualizado
+        async atualizarProjeto(projetoAtualizado: IProjeto){
+            await httpClient.patch("projetos/"+ projetoAtualizado.id,
+                {
+                    nome: projetoAtualizado.nome
+                }
+            )
+            await this.getListaProjetos()
+            /* const index = this.projetos.findIndex(proj => proj.id == projetoAtualizado.id)
+            this.projetos[index] = projetoAtualizado */
+        },
+        async deletarProjeto(projetoDeletado: IProjeto){
+            await httpClient.delete("projetos/"+projetoDeletado.id)
+            // const index = this.projetos.findIndex(proj => proj.id == projetoDeletado.id)
+            // this.projetos.splice(index,1) //splice altera a lista original | slice cria uma cópia
         },
         activateModalAberto(){
             this.modalAberto = true
